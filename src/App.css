@@ -1,0 +1,11 @@
+body, html, #root, .App {
+  height: 100%;
+  margin: 0;
+  background-color: black;
+  color: #f9d71c;
+  font-family: 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-align: center;
+
+  /* Base64 PNG van dode smiley als achtergrond */
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAEmklEQVR4nO3dT0hUURAG4C9iIxCEAzAicZSQMFhF0n8ThzA1qkRsElWi4WQUMxijBCP7tQ4GBSSeUJn
