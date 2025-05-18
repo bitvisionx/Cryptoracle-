@@ -1,36 +1,67 @@
-export function calculateSMA(data, period) {
-  const sma = [];
-  for (let i = period - 1; i < data.length; i++) {
-    const slice = data.slice(i - period + 1, i + 1);
-    const avg = slice.reduce((sum, val) => sum + val, 0) / period;
-    sma.push(avg);
-  }
-  return sma;
-}
+// src/utils/indicators.js
 
-export function calculateRSI(closes, period = 14) {
-  let gains = 0,
-    losses = 0;
+// Bereken RSI (Relative Strength Index)
+export function calculateRSI(data, period = 14) {
+  if (data.length < period) return null;
+
+  let gains = 0;
+  let losses = 0;
+
   for (let i = 1; i <= period; i++) {
-    const diff = closes[i] - closes[i - 1];
-    if (diff >= 0) gains += diff;
-    else losses -= diff;
+    const change = data[i] - data[i - 1];
+    if (change >= 0) gains += change;
+    else losses -= change;
   }
-  let rs = gains / (losses || 1);
-  let rsi = 100 - 100 / (1 + rs);
-  return rsi.toFixed(2);
+
+  let avgGain = gains / period;
+  let avgLoss = losses / period;
+
+  if (avgLoss === 0) return 100;
+
+  let rs = avgGain / avgLoss;
+  let rsi = 100 - (100 / (1 + rs));
+
+  return rsi;
 }
 
-export function calculateBollingerBands(closes, period = 20) {
-  const smaArr = calculateSMA(closes, period);
-  const sma = smaArr[smaArr.length - 1];
-  const slice = closes.slice(-period);
+// Bereken Bollinger Bands
+export function calculateBollingerBands(data, period = 20, multiplier = 2) {
+  if (data.length < period) return null;
+
+  const slice = data.slice(-period);
+  const mean = slice.reduce((sum, val) => sum + val, 0) / period;
+
   const variance =
-    slice.reduce((acc, val) => acc + (val - sma) ** 2, 0) / period;
+    slice.reduce((sum, val) => sum + (val - mean) ** 2, 0) / period;
   const stdDev = Math.sqrt(variance);
+
   return {
-    upper: (sma + 2 * stdDev).toFixed(2),
-    lower: (sma - 2 * stdDev).toFixed(2),
-    middle: sma.toFixed(2),
+    upper: mean + multiplier * stdDev,
+    middle: mean,
+    lower: mean - multiplier * stdDev,
   };
+}
+
+// Simple Moving Average (SMA)
+export function calculateSMA(data, period = 14) {
+  if (data.length < period) return null;
+
+  const slice = data.slice(-period);
+  const sum = slice.reduce((acc, val) => acc + val, 0);
+
+  return sum / period;
+}
+
+// Exponential Moving Average (EMA)
+export function calculateEMA(data, period = 14) {
+  if (data.length < period) return null;
+
+  const k = 2 / (period + 1);
+  let ema = data.slice(0, period).reduce((acc, val) => acc + val, 0) / period;
+
+  for (let i = period; i < data.length; i++) {
+    ema = data[i] * k + ema * (1 - k);
+  }
+
+  return ema;
 }
